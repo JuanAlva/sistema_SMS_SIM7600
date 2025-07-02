@@ -3,6 +3,7 @@ from config import MQTT_BROKER, MQTT_PORT, PHONE_GROUPS
 import sim7600
 import threading
 import queue
+import random
 
 sms_queue = queue.Queue()
 
@@ -15,6 +16,17 @@ def on_connect(client, userdata, flags, rc):
     # Suscribirse a todos los topicos definidos
     for topic in PHONE_GROUPS:
         client.subscribe(topic)
+
+def on_disconnect(client, userdata, rc):
+    print(f"Desconectado del broker MQTT. Codigo de retorno: {rc}")
+    while rc != 0:
+        try:
+            print("Intentando reconexion al broker MQTT...")
+            rc = client.reconnect()
+            print("Reconexion exitosa.")
+        except Exception as e:
+            print(f"Error al reconectar: {e}")
+            time.sleep(5)  # espera antes del siguiente intento
 
 def on_message(client, userdata, msg):
     mensaje = msg.payload.decode()
@@ -31,17 +43,16 @@ def on_message(client, userdata, msg):
             sms_queue.put(sms_data)
     else:
         print(f"Topico no reconocido: {topic}")
-
-    
-#    for number, label in LISTA_UNO.items():
-#        print(f"Enviando a {label} ({number})")
-#        thread = threading.Thread(target=enviar_sms_threadsafe, args=(number, mensaje))
-#        thread.daemon = True
-#        thread.start()
         
 def init_mqtt():
-    client = mqtt.Client()
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.connect(MQTT_BROKER, MQTT_PORT, 60)
-    return client, sms_queue # devuelve ambos
+	client_id = f"Sistema de alarmas por SMS: {random.randint(1000, 9999)}"
+	client = mqtt.Client(client_id=client_id)
+		
+	client.on_connect = on_connect
+	client.on_message = on_message
+	client.on_disconnect = on_disconnect  # callback de desconexion
+	
+	client.reconnect_delay_set(min_delay=2, max_delay=10)
+    
+	client.connect(MQTT_BROKER, MQTT_PORT, 60)
+	return client, sms_queue # devuelve ambos
