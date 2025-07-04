@@ -10,15 +10,16 @@ TOPIC_ALARMA2 = 'alarma/lista2'
 # Lista de destinatarios
 PHONE_GROUPS = {
 	TOPIC_ALARMA1: {
-		'51972095270': 'David Ninamancco',
-		'51918518421': 'Jose Sanchez'		
+		'51918518421': 'Jose Sanchez',
+		'51972095270': 'David Ninamancco'
+				
 	},
 	TOPIC_ALARMA2: {
 		'51922012761': 'Jhoan Medina',
 		'51981212690': 'Irvin Meza',
 		'51907345842': 'Angie',
 		'51992789961': 'Johan Ramirez',
-		'51995091099': 'Fray' 
+		'51995091099': 'Fray'
 	}
 }
 
